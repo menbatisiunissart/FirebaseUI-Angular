@@ -7,6 +7,9 @@ import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AngularFireModule} from '@angular/fire/compat';
 import {AngularFireAuthModule} from '@angular/fire/compat/auth';
+import { connectFirestoreEmulator, getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
+import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions';
 
 
 const firebaseUiAuthConfig: firebaseui.auth.Config = {
@@ -49,7 +52,28 @@ const firebaseUiAuthConfig: firebaseui.auth.Config = {
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    FirebaseUIModule.forRoot(firebaseUiAuthConfig)
+    FirebaseUIModule.forRoot(firebaseUiAuthConfig),
+    provideFirestore(() => {
+      const  firestore = getFirestore();
+      if (location.hostname === 'localhost') {
+              connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
+      }
+      return  firestore;
+    }),
+    provideFunctions(() => {
+      const  functions = getFunctions();
+      if (location.hostname === 'localhost') {
+              connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+      }
+      return  functions;
+    }),
+    provideStorage(() => {
+          const  storage = getStorage();
+          if (location.hostname === 'localhost') {
+                  connectStorageEmulator(storage, '127.0.0.1', 9199);
+          }
+          return  storage;
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]
